@@ -42,15 +42,15 @@ contract SupplyChain {
   /* Create 4 events with the same name as each possible State (see above)
     Prefix each event with "Log" for clarity, so the forSale event will be called "LogForSale"
     Each event should accept one argument, the sku */
-  event LogForSale (uint sku);
-  event LogSold (uint sku);
+  event LogForSale (uint indexed sku);
+  event LogSold (uint indexed sku);
   event LogShipped (uint sku);
   event LogReceived (uint sku);
 /* Create a modifer that checks if the msg.sender is the owner of the contract */
   modifier isOwner() { require(msg.sender == owner, "Owner can access!"); _; }
-  modifier verifyCaller (address _address) { require (msg.sender == _address); _;}
+  modifier verifyCaller (address _address) { require (msg.sender == _address, "Not verified!"); _;}
 
-  modifier paidEnough(uint _price) { require(msg.value >= _price); _;}
+  modifier paidEnough(uint _price) { require(msg.value >= _price, "Amount not enough!"); _;}
   modifier checkValue(uint _sku) {
     //refund them after pay for item (why it is before, _ checks for logic before func)
     _;
@@ -128,10 +128,10 @@ contract SupplyChain {
   /* Add 2 modifiers to check if the item is shipped already, and that the person calling this function
   is the buyer. Change the state of the item to received. Remember to call the event associated with this function!*/
   function receiveItem(uint sku)
-    public sold(sku) verifyCaller(items[sku].seller)
+    public shipped(sku) verifyCaller(items[sku].buyer)
   {
-    items[sku].state = State.Shipped;
-    emit LogShipped(sku);
+    items[sku].state = State.Received;
+    emit LogReceived(sku);
   }
 
   /* We have these functions completed so we can run tests, just ignore it :) */
